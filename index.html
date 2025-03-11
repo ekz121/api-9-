@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restoran Lezat</title>
+    <!-- Tambahkan Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #2d2d2d 0%, #3d3d3d 100%);
+            padding: 1rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: background 0.3s ease;
+        }
+
+        .navbar:hover {
+            background: linear-gradient(90deg, #3d3d3d 0%, #4d4d4d 100%);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .brand:hover {
+            transform: scale(1.05);
+            color: #ff8787;
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #ffffff;
+            transition: color 0.3s ease;
+        }
+
+        .hamburger:hover {
+            color: #ff6b6b;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu li a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-menu li a:hover,
+        .nav-menu li a.active {
+            background-color: #ff6b6b;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .nav-menu li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #ff6b6b;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu li a:hover::after,
+        .nav-menu li a.active::after {
+            width: 50%;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 100px auto 0;
+            padding: 2rem;
+            flex: 1 0 auto;
+        }
+
+        .section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: translateY(20px);
+        }
+
+        .section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #home {
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .gallery-container {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .gallery {
+            display: flex;
+            gap: 2rem;
+            position: absolute;
+            animation: scroll 20s linear infinite;
+        }
+
+        .gallery-item {
+            width: 300px;
+            height: 300px;
+            flex-shrink: 0;
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-description {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(45, 45, 45, 0.8);
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .gallery-item:hover .gallery-description {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .home-description {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(45, 45, 45, 0.7);
+            border-radius: 15px;
+            margin: 2rem auto;
+            max-width: 800px;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+            font-size: 1.2em;
+            color: #ff6b6b;
+            line-height: 1.8;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .menu-item {
+            background-color: #2d2d2d;
+            padding: 1.5rem;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .menu-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .menu-item:nth-child(odd).visible {
+            transform: translateY(0) scale(1.05);
+        }
+
+        .menu-item:nth-child(even).visible {
+            transform: translateY(0) scale(1.05);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.2);
+        }
+
+        .menu-item img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item img:hover {
+            transform: scale(1.1);
+        }
+
+        .menu-item h3 {
+            color: #ff6b6b;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .menu-item p {
+            color: #cccccc;
+            text-align: center;
+        }
+
+        .menu-description {
+            background: rgba(45, 45, 45, 0.9);
+            padding: 1rem;
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            color: #ffffff;
+            transition: bottom 0.5s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            font-style: italic;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .menu-item:hover .menu-description {
+            bottom: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        #search {
+            padding: 4rem 0;
+        }
+
+        #search h1 {
+            font-size: 3rem;
+            background: linear-gradient(90deg, #ff6b6b, #ff8787);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px rgba(255, 107, 107, 0.5); }
+            to { text-shadow: 0 0 20px rgba(255, 107, 107, 1); }
+        }
+
+        #searchForm {
+            margin: 2rem 0;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 1s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #searchInput {
+            padding: 0.75rem 1.5rem;
+            width: 350px;
+            background: #3d3d3d;
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+        }
+
+        #searchInput:focus {
+            outline: none;
+            background: #4a4a4a;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+
+        #searchButton {
+            padding: 0.75rem 2rem;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1em;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        #searchButton:hover {
+            transform: scale(1.05);
+            background: #ff8787;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+
+        #searchResults {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .search-item {
+            background: #2d2d2d;
+            padding: 1.5rem;
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .search-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .search-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .search-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .search-item img:hover {
+            transform: scale(1.05);
+        }
+
+        .search-item h3 {
+            color: #ff6b6b;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .search-item p {
+            color: #cccccc;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .search-item .cuisine {
+            background: rgba(45, 45, 45, 0.9);
+            padding: 0.5rem;
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            color: #ffffff;
+            transition: bottom 0.5s ease;
+            font-size: 0.9rem;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .search-item:hover .cuisine {
+            bottom: 0;
+        }
+
+        #map {
+    width: 100%;
+    height: 400px; /* Atur tinggi sesuai kebutuhan */
+    border-radius: 10px;
+}
+
+
+        @keyframes fadeInMap {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .reservation-form {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: #2d2d2d;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ff6b6b;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #3d3d3d;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            box-shadow: 0 0 5px #ff6b6b;
+            background: #4a4a4a;
+        }
+
+        .error {
+            color: #ff4d4d;
+            font-size: 0.9em;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .reservation-form button {
+            width: 100%;
+            padding: 1rem;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .reservation-form button:hover {
+            transform: scale(1.05);
+            background: #ff8787;
+        }
+
+        .contact {
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-size: 28px;
+            margin-bottom: 2rem;
+            color: #ff6b6b;
+        }
+
+        .contact form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.1);
+        }
+
+        .contact label {
+            font-size: 16px;
+            margin-bottom: 0.5rem;
+            color: #ff6b6b;
+            text-align: left;
+            display: block;
+        }
+
+        .contact input,
+        .contact textarea {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            background-color: #3d3d3d;
+            border: none;
+            color: #ffffff;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .contact textarea {
+            height: 100px;
+            resize: none;
+        }
+
+        .contact input:focus,
+        .contact textarea:focus {
+            outline: none;
+            box-shadow: 0 0 5px #ff6b6b;
+            background: #4a4a4a;
+        }
+
+        .contact .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .contact button {
+            padding: 1rem 2rem;
+            background-color: #ff6b6b;
+            border: none;
+            color: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .contact button:hover {
+            transform: scale(1.05);
+            background: #ff8787;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            position: relative;
+            text-align: center;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 10px;
+        }
+
+        .lightbox-description {
+            color: #fff;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            margin-top: 10px;
+            border-radius: 5px;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .footer {
+            background: linear-gradient(90deg, #2d2d2d, #3d3d3d);
+            padding: 2.5rem 1rem;
+            text-align: center;
+            margin-top: auto;
+            flex-shrink: 0;
+            border-top: 2px solid #ff6b6b;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer .logo {
+            font-size: 2rem;
+            color: #ff6b6b;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .footer p {
+            color: #cccccc;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer .social-links a {
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            text-decoration: none;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .footer .social-links a:hover {
+            color: #ff8787;
+            transform: scale(1.2);
+        }
+
+        .footer .contact-info {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: linear-gradient(90deg, #2d2d2d, #3d3d3d);
+                flex-direction: column;
+                padding: 1rem;
+                text-align: center;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .nav-menu li a {
+                padding: 0.75rem;
+                font-size: 1.1rem;
+            }
+
+            .content {
+                padding: 1rem;
+                margin-top: 60px;
+            }
+
+            .gallery-container {
+                height: 200px;
+            }
+
+            .gallery-item {
+                width: 200px;
+                height: 200px;
+            }
+
+            .gallery-description {
+                font-size: 0.8rem;
+                padding: 5px;
+            }
+
+            .home-description {
+                font-size: 1em;
+                padding: 1.5rem;
+                max-width: 90%;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-item img {
+                width: 150px;
+                height: 150px;
+            }
+
+            .menu-description {
+                font-size: 0.7rem;
+            }
+
+            .search-item img {
+                height: 150px;
+            }
+
+            .search-item p {
+                font-size: 0.8rem;
+            }
+
+            .search-item .cuisine {
+                font-size: 0.7rem;
+            }
+
+            #searchForm {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            #searchInput {
+                width: 100%;
+            }
+
+            #map {
+                height: 300px;
+            }
+
+            .lightbox-description {
+                font-size: 0.9em;
+            }
+
+            .contact form {
+                width: 90%;
+                padding: 1.5rem;
+            }
+
+            .footer .social-links a {
+                font-size: 1.2rem;
+                margin: 0 0.5rem;
+            }
+
+            .footer-content {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="brand">waroeng ku</div>
+            <div class="hamburger">☰</div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#menu">Menu</a></li>
+                <li><a href="#search">Search</a></li>
+                <li><a href="#reservation">Reservasi</a></li>
+                <li><a href="#contact">Kontak</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="content">
+        <section id="home" class="section active">
+            <h1>Welcome to waroeng ku</h1>
+            <div class="gallery-container">
+                <div class="gallery">
+                    <div class="gallery-item" data-src="img/1.jpeg">
+                        <img src="img/1.jpeg" alt="Restoran 1">
+                        <div class="gallery-description"> A spicy and savory Indonesian street food made with crackers in a rich, fiery broth – a bold flavor experience!</div>
+                    </div>
+                    <div class="gallery-item" data-src="img/2.jpeg">
+                        <img src="img/2.jpeg" alt="Restoran 2">
+                        <div class="gallery-description">A delightful mix of steamed rice served with fresh vegetables and topped with a delicious peanut sauce.</div>
+                    </div>
+                    <div class="gallery-item" data-src="img/3.jpeg">
+                        <img src="img/3.jpeg" alt="Restoran 3">
+                        <div class="gallery-description">  Fragrant rice paired with tender duck and fresh veggie side dishes, served with a tangy sambal.</div>
+                    </div>
+                    <div class="gallery-item" data-src="img/4.jpeg">
+                        <img src="img/4.jpeg" alt="Restoran 1">
+                        <div class="gallery-description">Traditional Palembang fish cakes served with a sweet and sour vinegar sauce – a true Indonesian delicacy!</div>
+                    </div>
+                    <div class="gallery-item" data-src="img/5.jpeg">
+                        <img src="img/5.jpeg" alt="Restoran 2">
+                        <div class="gallery-description"> A rich, dark beef soup spiced with black keluak nuts, offering a deep and aromatic taste.</div>
+                    </div>
+                    <div class="gallery-item" data-src="img/6.jpeg">
+                        <img src="img/6.jpeg" alt="Restoran 3">
+                        <div class="gallery-description">Crispy fried tempeh coated in a light batter, perfect as a savory snack or side dish.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="home-description">
+                Welcome to my waroeng Discover an unforgettable culinary experience with authentic flavors and a warm atmosphere. This website is designed to provide the latest information about our menu, reservations, and contacts. Explore and taste the deliciousness of every dish!
+            </div>
+        </section>
+
+        <section id="menu" class="section">
+            <h1>Daftar Menu</h1>
+            <div class="menu-grid" id="restaurantList">
+                <div class="menu-item">
+                    <img src="img/1.jpeg" alt="Seblak" data-src="img/1.jpeg">
+                    <h3>Seblak</h3>
+                    <p>Rp 15.000</p>
+                    <div class="menu-description">
+                        A spicy and savory Indonesian street food made with crackers in a rich, fiery broth – a bold flavor experience!
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="img/2.jpeg" alt="Nasi Pecel" data-src="img/2.jpeg">
+                    <h3>Nasi Pecel</h3>
+                    <p>Rp 15.000</p>
+                    <div class="menu-description">
+                        A delightful mix of steamed rice served with fresh vegetables and topped with a delicious peanut sauce.
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="img/3.jpeg" alt="Nasi Lalapan Bebek" data-src="img/3.jpeg">
+                    <h3>Nasi Lalapan Bebek</h3>
+                    <p>Rp 20.000</p>
+                    <div class="menu-description">
+                        Fragrant rice paired with tender duck and fresh veggie side dishes, served with a tangy sambal.
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="img/4.jpeg" alt="Pempek" data-src="img/4.jpeg">
+                    <h3>Pempek</h3>
+                    <p>Rp 15.000</p>
+                    <div class="menu-description">
+                        Traditional Palembang fish cakes served with a sweet and sour vinegar sauce – a true Indonesian delicacy!
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="img/5.jpeg" alt="Rawon" data-src="img/5.jpeg">
+                    <h3>Rawon</h3>
+                    <p>Rp 15.000</p>
+                    <div class="menu-description">
+                        A rich, dark beef soup spiced with black keluak nuts, offering a deep and aromatic taste.
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="img/6.jpeg" alt="Tempe Mendoan" data-src="img/6.jpeg">
+                    <h3>Tempe Mendoan</h3>
+                    <p>Rp 10.000</p>
+                    <div class="menu-description">
+                        Crispy fried tempeh coated in a light batter, perfect as a savory snack or side dish.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="search" class="section">
+            <h1>Search Kuliner Lokal</h1>
+            <div id="searchForm">
+                <input type="text" id="searchInput" placeholder="Cari restoran (misalnya: Jakarta, Padang)">
+                <button id="searchButton" onclick="searchRestaurants()">Cari</button>
+            </div>
+            <div id="searchResults"></div>
+            <div id="map" style="width: 100%; height: 400px;"></div>
+
+        </section>
+
+        <section id="reservation" class="section">
+            <h1>Formulir Reservasi</h1>
+            <div class="reservation-form">
+                <form id="reservationForm" onsubmit="return sendReservation(event)">
+                    <div class="form-group">
+                        <label for="fullName">Nama Lengkap</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                        <div class="error" id="fullNameError">Nama lengkap tidak boleh kosong</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                        <div class="error" id="emailError">Email tidak valid</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Tanggal Reservasi</label>
+                        <input type="date" id="date" name="date" required>
+                        <div class="error" id="dateError">Tanggal harus diisi</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Waktu Reservasi</label>
+                        <input type="time" id="time" name="time" required>
+                        <div class="error" id="timeError">Waktu harus diisi</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Jumlah Tamu</label>
+                        <input type="number" id="guests" name="guests" min="1" required>
+                        <div class="error" id="guestsError">Jumlah tamu harus lebih dari 0</div>
+                    </div>
+                    <button type="submit">Kirim Reservasi</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="contact" class="section contact">
+            <h2>Kontak Kami</h2>
+            <form action="https://formspree.io/f/mpwqvnnq" method="POST">
+                <label for="name">Nama</label>
+                <input type="text" id="name" name="name" placeholder="Nama Anda" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="Email Anda" required>
+                <label for="message">Pesan</label>
+                <textarea id="message" name="message" placeholder="Pesan Anda" required></textarea>
+                <div class="button-group">
+                    <button type="submit">Kirim</button>
+                    <button type="reset">Reset</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <img src="" alt="Lightbox Image">
+            <div class="lightbox-description">Description will appear here...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="logo">waroeng ku</div>
+            <p>© 2025 waroeng ku. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="mailto:ekazein86@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+            </div>
+            <div class="contact-info">
+                <p>Hubungi kami: +62 856 0487 3274</p>
+                <p>Alamat: Jl. pluto No. 124, venus</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Tambahkan Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Inisialisasi EmailJS
+        (function(){
+            emailjs.init("EO5oTo-thw3OIoZyy");
+        })();
+
+        // Hamburger menu
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+        hamburger.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            hamburger.classList.toggle('open');
+        });
+
+        // Navigation dengan Transisi Halus
+        const navLinks = document.querySelectorAll('.nav-menu a');
+        const sections = document.querySelectorAll('.section');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                navLinks.forEach(l => l.classList.remove('active'));
+                sections.forEach(s => s.classList.remove('active'));
+                link.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+                navMenu.classList.remove('active');
+                hamburger.classList.remove('open');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Lightbox
+        const lightboxItems = document.querySelectorAll('.gallery-item, .menu-item img');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = lightbox.querySelector('img');
+        const lightboxDescription = lightbox.querySelector('.lightbox-description');
+
+        lightboxItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const src = item.getAttribute('data-src');
+                lightboxImg.src = src;
+                let description = item.nextElementSibling?.textContent || item.parentElement.querySelector('.menu-description')?.textContent || 'No description available';
+                lightboxDescription.textContent = description;
+                lightbox.classList.add('active');
+            });
+        });
+
+        lightbox.addEventListener('click', (e) => {
+            lightbox.classList.remove('active');
+        });
+
+        // Pause gallery animation on hover
+        const gallery = document.querySelector('.gallery');
+        gallery.addEventListener('mouseover', () => {
+            gallery.style.animationPlayState = 'paused';
+        });
+        gallery.addEventListener('mouseout', () => {
+            gallery.style.animationPlayState = 'running';
+        });
+
+        // Scroll-driven animation for menu and search items
+        function checkVisibility() {
+            const items = document.querySelectorAll('.menu-item, .search-item');
+            const windowHeight = window.innerHeight;
+
+            items.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                const isVisible = rect.top < windowHeight - 100 && rect.bottom > 100;
+
+                if (isVisible) {
+                    item.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', checkVisibility);
+        window.addEventListener('load', checkVisibility);
+
+        // Reservation handling
+        function sendReservation(event) {
+            event.preventDefault();
+            let isValid = true;
+
+            document.querySelectorAll('.error').forEach(error => error.style.display = 'none');
+
+            const fullName = document.getElementById('fullName').value.trim();
+            if (!fullName) {
+                document.getElementById('fullNameError').style.display = 'block';
+                isValid = false;
+            }
+
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                document.getElementById('emailError').style.display = 'block';
+                isValid = false;
+            }
+
+            const date = document.getElementById('date').value;
+            if (!date) {
+                document.getElementById('dateError').style.display = 'block';
+                isValid = false;
+            }
+
+            const time = document.getElementById('time').value;
+            if (!time) {
+                document.getElementById('timeError').style.display = 'block';
+                isValid = false;
+            }
+
+            const guests = document.getElementById('guests').value;
+            if (!guests || guests <= 0) {
+                document.getElementById('guestsError').style.display = 'block';
+                isValid = false;
+            }
+
+            if (isValid) {
+                const params = {
+                    fullName: fullName,
+                    email: email,
+                    date: date,
+                    time: time,
+                    guests: guests
+                };
+
+                emailjs.send('service_n11rglg', 'template_d0tf2nl', params)
+                    .then(function(response) {
+                        alert(`Reservasi berhasil!\nNama: ${fullName}\nTanggal: ${date}\nWaktu: ${time}\nJumlah Tamu: ${guests}`);
+                        document.getElementById('reservationForm').reset();
+                    }, function(error) {
+                        alert('Gagal mengirim reservasi: ' + JSON.stringify(error));
+                    });
+            }
+
+            return false;
+        }
+
+        // Data Statis untuk Restoran (dipertahankan untuk referensi, tapi tidak digunakan karena pakai Foursquare API)
+        const restaurantData = [
+            { name: "Warung Seblak", address: "Jl. Merdeka 1, Jakarta", lat: -6.2088, lng: 106.8456, rating: 4.5, image: "img/1.jpeg" },
+            { name: "Pecel Madiun", address: "Jl. Sudirman 10, Madiun", lat: -7.6298, lng: 111.5239, rating: 4.2, image: "img/2.jpeg" },
+            { name: "Bebek Goreng H. Slamet", address: "Jl. Veteran 5, Yogyakarta", lat: -7.7956, lng: 110.3695, rating: 4.8, image: "img/3.jpeg" },
+            { name: "Pempek Ny. Kamto", address: "Jl. Palembang Raya, Palembang", lat: -2.9761, lng: 104.7754, rating: 4.6, image: "img/4.jpeg" },
+            { name: "Rawon Setan", address: "Jl. Embong Malang, Surabaya", lat: -7.2653, lng: 112.7517, rating: 4.3, image: "img/5.jpeg" },
+            { name: "Tempe Mendoan Pak Joko", address: "Jl. Banyumas 3, Purwokerto", lat: -7.4242, lng: 109.2344, rating: 4.4, image: "img/6.jpeg" }
+        ];
+
+        // Inisialisasi Peta dengan Leaflet (menggantikan Google Maps)
+        let map = L.map('map').setView([-6.2088, 106.8456], 12); // Jakarta default
+let markersLayer = L.layerGroup().addTo(map); // Layer untuk markers
+
+// Tambahkan tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+function searchLocation(location) {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                alert("Lokasi tidak ditemukan!");
+                return;
+            }
+
+            // Hapus layer sebelumnya
+            markersLayer.clearLayers();
+
+            let lat = data[0].lat;
+            let lon = data[0].lon;
+
+            // Update peta ke lokasi yang dicari
+            map.setView([lat, lon], 13);
+
+            // Tambahkan marker baru
+            let marker = L.marker([lat, lon]).bindPopup(`Lokasi: ${location}`);
+            markersLayer.addLayer(marker);
+        })
+        .catch(error => console.error("Error fetching location:", error));
+}
+
+// Event listener tombol cari
+document.getElementById("searchButton").addEventListener("click", function () {
+    let location = document.getElementById("searchInput").value;
+    if (location) {
+        searchLocation(location);
+    } else {
+        alert("Masukkan nama lokasi!");
+    }
+});
+
+
+        // Panggil initMap saat halaman dimuat
+        window.addEventListener('load', initMap);
+
+        // Fungsi Search dengan Foursquare Places API
+function searchRestaurants() {
+    const query = document.getElementById("searchInput").value.trim();
+    const searchResults = document.getElementById("searchResults");
+    searchResults.innerHTML = "<p style='text-align: center; color: #ff6b6b;'>Mencari restoran...</p>";
+
+    if (!query) {
+        searchResults.innerHTML = "<p style='text-align: center; color: #ff6b6b;'>Masukkan nama kota atau jenis kuliner!</p>";
+        return;
+    }
+
+    const apiKey = "fsq3KD9MeQgAW1vtlZcRO4NytbTKqMs5rAOVZikv14JrbXM="; // API Key terbaru
+    const url = `https://api.foursquare.com/v3/places/search?query=restaurant&near=${encodeURIComponent(query)}`;
+
+    fetch(url, {
+        method: "GET",
+        headers: {
+            "Accept": "application/json",
+            "Authorization": apiKey
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Gagal mengambil data dari Foursquare");
+        return response.json();
+    })
+    .then(data => {
+        const venues = data.results || [];
+        if (venues.length === 0) {
+            searchResults.innerHTML = "<p style='text-align: center; color: #ff6b6b;'>Tidak ada restoran ditemukan.</p>";
+        } else {
+            displayRestaurants(venues);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        searchResults.innerHTML = `<p style='text-align: center; color: #ff6b6b;'>${error.message}</p>`;
+    });
+}
+
+// Tampilkan Hasil Search dan Update Peta
+function displayRestaurants(venues) {
+    const searchResults = document.getElementById("searchResults");
+    searchResults.innerHTML = "";
+
+    // Reset peta (hapus marker lama, tetapi pertahankan layer peta)
+    map.eachLayer(layer => {
+        if (layer instanceof L.Marker) {
+            map.removeLayer(layer);
+        }
+    });
+    map.setView([-6.2088, 106.8456], 10);
+
+    if (venues.length === 0) {
+        searchResults.innerHTML = "<p style='text-align: center; color: #ff6b6b;'>Tidak ada restoran ditemukan.</p>";
+        return;
+    }
+
+    venues.forEach(venue => {
+        const div = document.createElement("div");
+        div.className = "search-item";
+        div.innerHTML = `
+            <img src="img/default.jpg" alt="${venue.name}">
+            <h3>${venue.name}</h3>
+            <p>${venue.location.formatted_address || 'Alamat tidak tersedia'}</p>
+            <div class="cuisine">Rating: ${venue.rating ? venue.rating + '/10' : 'N/A'}</div>
+        `;
+        div.addEventListener("click", () => {
+            map.setView([venue.geocodes.main.latitude, venue.geocodes.main.longitude], 15);
+            L.marker([venue.geocodes.main.latitude, venue.geocodes.main.longitude])
+                .addTo(map)
+                .bindPopup(venue.name)
+                .openPopup();
+        });
+        searchResults.appendChild(div);
+
+        // Tambah marker awal
+        L.marker([venue.geocodes.main.latitude, venue.geocodes.main.longitude])
+            .addTo(map)
+            .bindPopup(venue.name);
+    });
+
+    // Pusatkan peta ke restoran pertama
+    if (venues.length > 0) {
+        map.setView([venues[0].geocodes.main.latitude, venues[0].geocodes.main.longitude], 10);
+    }
+
+    checkVisibility();
+}
+       
+        document.addEventListener("DOMContentLoaded", function () {
+    let map = L.map('map').setView([-6.2088, 106.8456], 12); // Lokasi awal (Jakarta)
+
+    // Tambahkan tile layer dari OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Tambahkan marker di lokasi awal
+    L.marker([-6.2088, 106.8456]).addTo(map)
+        .bindPopup("Jakarta, Indonesia")
+        .openPopup();
+});
+setTimeout(() => {
+    map.invalidateSize();
+}, 400);
+window.addEventListener("resize", function () {
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 300);
+});
+
+    </script>
+</body>
+</html>
