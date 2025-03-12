@@ -1,5 +1,8 @@
 # api-9-
 
+kata pak totok harus tampil halaman nya sendiri untuk bisa tampil search ,bisa di cek di modul bagaimana konsep sebenarnya
+
+
 konsep ini terdiri dari 3 poin 
 
 1. codingan dari tugas saya sebelumnya
