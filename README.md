@@ -1,6 +1,6 @@
 # api-9-
 
-kata pak totok harus tampil halaman nya sendiri untuk bisa tampil search ,bisa di cek di modul bagaimana konsep sebenarnya
+kata pak totok harus tampil halaman nya sendiri untuk bisa tampil search ,bisa di cek di modul bagaimana konsep sebenarnya(sudah saya cek,hasilnya tidak berfungsi (ini api nya: 8c717c1abc7643a7a4e003b54d450fa1))
 
 
 konsep ini terdiri dari 3 poin 
